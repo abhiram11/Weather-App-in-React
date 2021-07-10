@@ -1,10 +1,16 @@
 import styled from "styled-components";
 import CityComponent from "./modules/CityComponent";
 import WeatherInfoComponent from "./modules/WeatherInfoComponent";
+import { useState } from "react";
+import axios from "axios";
 
 //writing container for this app
 //showing city component first,
 //then we conditionally render the weather component after entering city
+// what is flex wrap? 42:21 wrap the component if there is more data
+// using axios library for calling api to get weather 50:30
+// 51:30 using axios.get with async and await, and the output of method get() is stored as response
+// 54:10 if weather available we wont show city component, directly show weather component
 
 const Container = styled.div`
   display: flex;
@@ -34,12 +40,32 @@ const AppLabel = styled.span`
 //   flex-direction: column;
 // `;
 
+const API_KEY = "421be02f61347a6f429e0b237021e1f3";
+
 function App() {
+  // 2 things are changing in city/search component, so 2 things to maintain
+  const [city, updateCity] = useState();
+  const [weather, updateWeather] = useState();
+  // fetch weather from api
+  // 421be02f61347a6f429e0b237021e1f3
+  const fetchWeather = async (e) => {
+    e.preventDefault();
+    const response = await axios.get(
+      `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}`
+    );
+    console.log(response);
+    updateWeather(response.data);
+  };
+
   return (
     <Container>
       <AppLabel> Weather App in React! </AppLabel>
-      <CityComponent />
-      <WeatherInfoComponent />
+      {weather ? (
+        <WeatherInfoComponent weather={weather} />
+      ) : (
+        <CityComponent updateCity={updateCity} fetchWeather={fetchWeather} />
+      )}
+      {/* <WeatherInfoComponent /> */}
     </Container>
   );
 }
